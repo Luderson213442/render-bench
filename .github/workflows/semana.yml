@@ -1,0 +1,49 @@
+name: semana
+
+# Fila da semana: 1 job por título (até 6 contas), cada conta com o seu arquivo.
+on:
+  workflow_dispatch:
+    inputs:
+      lote:
+        description: arquivo em semana/ com os jobs
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: semana-${{ inputs.lote }}
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: m
+        run: echo "matrix=$(python -c "import json;print(json.dumps([j['key'] for j in json.load(open('semana/${{ inputs.lote }}'))]))")" >> "$GITHUB_OUTPUT"
+
+  render:
+    needs: prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      max-parallel: 20
+      fail-fast: false
+      matrix:
+        key: ${{ fromJSON(needs.prep.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - run: pip install -q boto3
+      - name: render
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_PUBLIC: https://pub-43f3224c58df4004beac8fc6f6f00ede.r2.dev
+        run: |
+          python -c "import json;j=[x for x in json.load(open('semana/${{ inputs.lote }}')) if x['key']=='${{ matrix.key }}'][0];json.dump(j,open('job.json','w'))"
+          python render_semana.py job.json
