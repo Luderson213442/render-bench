@@ -1,0 +1,65 @@
+name: render-bench
+
+# Renderiza N vídeos EM PARALELO (1 job por vídeo) pra medir velocidade.
+# frio: headline no topo, cena no meio, CTA link da bio embaixo, sem @/nome + pitch.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: m
+        run: echo "matrix=$(python -c "import json;print(json.dumps(json.load(open('manifest.json'))))")" >> "$GITHUB_OUTPUT"
+
+  render:
+    needs: prep
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 10
+      fail-fast: false
+      matrix:
+        item: ${{ fromJSON(needs.prep.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-dejavu-core
+      - run: pip install pillow boto3
+      - name: baixar fonte
+        run: curl -sSL --max-time 180 -o in.mp4 "${{ matrix.item.r2_url }}"
+      - name: render
+        run: |
+          python render_bench.py --input in.mp4 --output out.mp4 \
+            --headline "${{ matrix.item.headline }}" --pitch ${{ matrix.item.pitch }}
+      - name: subir resultado no R2
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          NAME: ${{ matrix.item.name }}
+        run: |
+          python - <<'PY'
+          import os, boto3
+          s3 = boto3.client("s3", endpoint_url=f"https://{os.environ['R2_ACCOUNT_ID']}.r2.cloudflarestorage.com",
+              aws_access_key_id=os.environ["R2_ACCESS_KEY_ID"], aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"], region_name="auto")
+          s3.upload_file("out.mp4", os.environ["R2_BUCKET"], f"bench_frio/{os.environ['NAME']}.mp4",
+              ExtraArgs={"ContentType":"video/mp4","CacheControl":"public, max-age=3600"})
+          print("subiu bench_frio/"+os.environ["NAME"]+".mp4")
+          PY
+
+  summary:
+    needs: render
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Todos os jobs de render terminaram. Veja a duração de cada um na aba do run."
