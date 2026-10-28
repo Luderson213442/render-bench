@@ -2,81 +2,43 @@
   {
     "name": "01_melhores.filmes.e.series_De8I_3QgTSK",
     "r2_url": "https://pub-43f3224c58df4004beac8fc6f6f00ede.r2.dev/bench/01_melhores.filmes.e.series_De8I_3QgTSK.mp4",
-    "headline": "INFANTIL  COMÉDIA",
-    "pitch": 0.9965,
-    "perfil": "melhores.filmes.e.series",
-    "views": 151000
+    "png_url": "https://pub-43f3224c58df4004beac8fc6f6f00ede.r2.dev/bench_mold/01_melhores.filmes.e.series_De8I_3QgTSK.png",
+    "vf": "crop=600:408:4:334,scale=1080:737:flags=lanczos,setsar=1,pad=1080:1920:0:512:color=0x0a0a0a,format=yuv420p",
+    "pitch": 0.9855
   },
   {
     "name": "02_pipoca.agora_Dez5jplhmbX",
     "r2_url": "https://pub-43f3224c58df4004beac8fc6f6f00ede.r2.dev/bench/02_pipoca.agora_Dez5jplhmbX.mp4",
-    "headline": "O DRAMA PROTAGONIZADO POR JENNA ORTEGA QUE VADA, UMA ADOLESCENTE QUE V",
-    "pitch": 1.0115,
-    "perfil": "pipoca.agora",
-    "views": 186000
+    "png_url": "https://pub-43f3224c58df4004beac8fc6f6f00ede.r2.dev/bench_mold/02_pipoca.agora_Dez5jplhmbX.png",
+    "vf": "delogo=x=20:y=400:w=175:h=135,crop=708:482:4:461,scale=1080:737:flags=lanczos,setsar=1,pad=1080:1920:0:512:color=0x0a0a0a,format=yuv420p",
+    "pitch": 0.9917
   },
   {
     "name": "03_somaisumfilme14_De-oxRyO0Mf",
     "r2_url": "https://pub-43f3224c58df4004beac8fc6f6f00ede.r2.dev/bench/03_somaisumfilme14_De-oxRyO0Mf.mp4",
-    "headline": "VOCÊ PRECISA VER: DEPUTADA VIVA: BURIED ALIVE",
-    "pitch": 1.0022,
-    "perfil": "somaisumfilme14",
-    "views": 99000
+    "png_url": "https://pub-43f3224c58df4004beac8fc6f6f00ede.r2.dev/bench_mold/03_somaisumfilme14_De-oxRyO0Mf.png",
+    "vf": "crop=712:484:4:456,scale=1080:737:flags=lanczos,setsar=1,pad=1080:1920:0:512:color=0x0a0a0a,format=yuv420p",
+    "pitch": 1.0069
   },
   {
     "name": "04_filme_cine_De9qXUYvQCj",
     "r2_url": "https://pub-43f3224c58df4004beac8fc6f6f00ede.r2.dev/bench/04_filme_cine_De9qXUYvQCj.mp4",
-    "headline": "VOCÊ PRECISA VER: 9-1-1 (2018)",
-    "pitch": 1.0007,
-    "perfil": "filme_cine",
-    "views": 166000
-  },
-  {
-    "name": "05_seufilmefavorito_De6Vgawyr6l",
-    "r2_url": "https://pub-43f3224c58df4004beac8fc6f6f00ede.r2.dev/bench/05_seufilmefavorito_De6Vgawyr6l.mp4",
-    "headline": "LARISSA MANOELA E ANDRÉ LUIZ FRAMBACH APARECEM EM UM REGISTRO COMPARTI",
-    "pitch": 0.9966,
-    "perfil": "seufilmefavorito",
-    "views": 3500000
-  },
-  {
-    "name": "06_cinemania__br_De_WaQdKR1g",
-    "r2_url": "https://pub-43f3224c58df4004beac8fc6f6f00ede.r2.dev/bench/06_cinemania__br_De_WaQdKR1g.mp4",
-    "headline": "ASSISTA O FILME NO NOSSO APP CLICANDO NO LINK DA BIO NO PERFIL",
-    "pitch": 0.9914,
-    "perfil": "cinemania__br",
-    "views": 243000
-  },
-  {
-    "name": "07_cinemania__br_De_-xuVqc_Q",
-    "r2_url": "https://pub-43f3224c58df4004beac8fc6f6f00ede.r2.dev/bench/07_cinemania__br_De_-xuVqc_Q.mp4",
-    "headline": "ASSISTA O FILME NO NOSSO APP CLICANDO NO LINK DA BIO NO PERFIL",
-    "pitch": 1.0033,
-    "perfil": "cinemania__br",
-    "views": 157000
+    "png_url": "https://pub-43f3224c58df4004beac8fc6f6f00ede.r2.dev/bench_mold/04_filme_cine_De9qXUYvQCj.png",
+    "vf": "crop=712:484:4:404,scale=1080:737:flags=lanczos,setsar=1,pad=1080:1920:0:512:color=0x0a0a0a,format=yuv420p",
+    "pitch": 0.9862
   },
   {
     "name": "08_somaisumfilme14_De-ryN7uY54",
     "r2_url": "https://pub-43f3224c58df4004beac8fc6f6f00ede.r2.dev/bench/08_somaisumfilme14_De-ryN7uY54.mp4",
-    "headline": "VOCÊ PRECISA VER: TEMPO DE GLÓRIA (GLORY)",
-    "pitch": 1.0061,
-    "perfil": "somaisumfilme14",
-    "views": 53700
-  },
-  {
-    "name": "09_somaisumfilme14_De9-n1oMqt7",
-    "r2_url": "https://pub-43f3224c58df4004beac8fc6f6f00ede.r2.dev/bench/09_somaisumfilme14_De9-n1oMqt7.mp4",
-    "headline": "CLICA EM SEGUIR",
-    "pitch": 0.9883,
-    "perfil": "somaisumfilme14",
-    "views": 14300
+    "png_url": "https://pub-43f3224c58df4004beac8fc6f6f00ede.r2.dev/bench_mold/08_somaisumfilme14_De-ryN7uY54.png",
+    "vf": "crop=712:484:4:429,scale=1080:737:flags=lanczos,setsar=1,pad=1080:1920:0:512:color=0x0a0a0a,format=yuv420p",
+    "pitch": 1.013
   },
   {
     "name": "10_pipoca.agora_Dez07ZFM_Az",
     "r2_url": "https://pub-43f3224c58df4004beac8fc6f6f00ede.r2.dev/bench/10_pipoca.agora_Dez07ZFM_Az.mp4",
-    "headline": "CASSANDRA É UMA MULHER TRANS QUE TRABALHA COMO MOTOGIRL EM SÃO PAULO E",
-    "pitch": 0.9961,
-    "perfil": "pipoca.agora",
-    "views": 50800
+    "png_url": "https://pub-43f3224c58df4004beac8fc6f6f00ede.r2.dev/bench_mold/10_pipoca.agora_Dez07ZFM_Az.png",
+    "vf": "delogo=x=20:y=400:w=175:h=135,crop=708:482:4:449,scale=1080:737:flags=lanczos,setsar=1,pad=1080:1920:0:512:color=0x0a0a0a,format=yuv420p",
+    "pitch": 0.9995
   }
 ]
