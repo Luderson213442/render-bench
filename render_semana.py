@@ -59,7 +59,9 @@ for v in job["variantes"]:
                         "-r", "30", "-c:a", "aac", "-b:a", "160k", "-map_metadata", "-1",
                         "-metadata", f"comment={v['conta']}:{job['code']}",
                         "-fflags", "+bitexact", "-flags:v", "+bitexact", "-flags:a", "+bitexact",
-                        "-movflags", "+faststart", "out.mp4"], check=True, timeout=900)
+                        "-movflags", "+faststart",
+                        *(["-t", str(job["corte"])] if job.get("corte") else []),   # 50–70 s -> ~48 s (11/11)
+                        "out.mp4"], check=True, timeout=900)
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", "1.5", "-i", "out.mp4", "-frames:v", "1",
                         "-q:v", "3", "-metadata", f"comment={v['conta']}:{job['code']}", "capa.jpg"], check=True)
         h = sha("out.mp4")
