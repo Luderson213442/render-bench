@@ -50,7 +50,7 @@ jobs:
       - name: Portão da fatia
         run: |
           export CHROME=$(command -v google-chrome)
-          python -X utf8 -u motion/checa_objetos.py "$(cat /tmp/job/html.txt)" --faixa $((${{ matrix.r[0] }}-60)) $((${{ matrix.r[1] }}+60)) > /tmp/portao.txt 2>&1 || true
+          python -X utf8 -u motion/checa_objetos.py "$(cat /tmp/job/html.txt)" --faixa $((${{ matrix.r[0] }}-60)) $((${{ matrix.r[1] }}+60)) --dono ${{ matrix.r[0] }} ${{ matrix.r[1] }} > /tmp/portao.txt 2>&1 || true
           tail -1 /tmp/portao.txt
       - name: Saída
         run: python motion/r2.py enviar ${{ matrix.r[0] }}

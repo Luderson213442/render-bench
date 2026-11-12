@@ -8,7 +8,7 @@ Reprova:
   VOLTA  = a peça anda >=8 q num sentido e depois volta >=60% do caminho, e continua na tela (ex.: se endireita e gira de volta)
 O elástico aprovado (uma ultrapassagem e assentamento) e o clique com bounce passam. Ids que começam com 'fundo' (textura
 periódica) não são medidos. Saída 'objetos: OK' ou 'objetos: REPROVADO (n)'; código 1 se reprovado; 1 linha por objeto."""
-import sys, os, pathlib, time, math
+import sys, os, re, pathlib, time, math
 from collections import defaultdict
 from playwright.sync_api import sync_playwright
 
@@ -113,6 +113,8 @@ with sync_playwright() as p:
     # --faixa A B: só os quadros [A,B) (portão de uma fatia; a fatia vem com sobra de 60 q em cada ponta)
     FA, FB = (int(sys.argv[sys.argv.index('--faixa') + 1]), int(sys.argv[sys.argv.index('--faixa') + 2])) if '--faixa' in sys.argv else (0, TOTAL + 1)
     FA, FB = max(0, FA), min(TOTAL + 1, FB)
+    # --dono A B: só reprova defeito que COMEÇA em [A,B) (a fatia vizinha responde pelo resto, com contexto completo)
+    DONO = (int(sys.argv[sys.argv.index('--dono') + 1]), int(sys.argv[sys.argv.index('--dono') + 2])) if '--dono' in sys.argv else None
     # onde cada peça existe (M.ve registra o id no quadro em que é chamada): mede só ali, +3 q de margem
     onde = pg.evaluate("""(TOTAL)=>{if(!M.ids)return null;const c=document.createElement('canvas').getContext('2d');const O={};let q=0;
       M.ids={add:id=>{(O[id]=O[id]||[]).push(q)}};for(q=FA;q<FB;q++)__draw(c,q);return O}""".replace('FA', str(FA)).replace('FB', str(FB)), TOTAL)
@@ -133,7 +135,9 @@ with sync_playwright() as p:
         t = time.time()
         qs = sorted({min(FB - 1, max(FA, q + d)) for q in onde[i] for d in range(-3, 4)})
         S, qb = series(pg.evaluate(JS, [i, qs, [NB.get(q, -1) for q in qs]]))
-        f = analisa(i, S, qb, cortes, TOTAL); falhas += f
+        f = analisa(i, S, qb, cortes, TOTAL)
+        if DONO: f = [x for x in f if DONO[0] <= int(re.search(r' q(\d+)', x).group(1)) < DONO[1]]   # a sobra é só contexto
+        falhas += f
         print(f'  [{n+1}/{len(medidos)}] {i}: {"OK" if not f else "REPROVADO"} ({len(S)} peças, {time.time()-t:.0f}s)', flush=True)
     br.close()
 for f in falhas[:60]: print('  ✗', f)
