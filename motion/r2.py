@@ -13,5 +13,6 @@ if sys.argv[1] == 'baixar':
 else:
     k = sys.argv[2]
     s3.upload_file('/tmp/out.json', B, f'{P}/f{k}.json')
+    if os.path.exists('/tmp/portao.txt'): s3.upload_file('/tmp/portao.txt', B, f'{P}/f{k}.portao.txt')
     s3.upload_file('/tmp/out.mp4', B, f'{P}/f{k}.mp4')   # o .mp4 por último: é o sinal de pronto
 print('ok')
