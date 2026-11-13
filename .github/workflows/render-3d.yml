@@ -1,0 +1,87 @@
+name: render-3d
+
+# Renderiza uma página Three.js (?render) quadro a quadro, dividida em N partes (1 job por parte).
+# Cada parte sobe <id>/parte_NN.mp4 no R2; o PC junta com ffmpeg concat -c copy.
+
+on:
+  workflow_dispatch:
+    inputs:
+      pacote_url:
+        description: "zip no R2 com o HTML e as libs"
+        required: true
+      html:
+        description: "caminho do HTML dentro do zip"
+        required: true
+      partes:
+        description: "numero de partes"
+        required: true
+        default: "10"
+      id:
+        description: "id do render (pasta no R2)"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+    steps:
+      - id: m
+        run: echo "matrix=$(python3 -c "import json;print(json.dumps(list(range(int('${{ inputs.partes }}')))))")" >> "$GITHUB_OUTPUT"
+
+  render:
+    needs: prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      max-parallel: 40
+      fail-fast: false
+      matrix:
+        k: ${{ fromJSON(needs.prep.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-3d.txt
+      - run: pip install -r requirements-3d.txt
+      - name: cache do Chromium
+        id: pw
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-chromium-${{ runner.os }}-${{ hashFiles('requirements-3d.txt') }}
+      - name: instalar Chromium
+        run: |
+          if [ "${{ steps.pw.outputs.cache-hit }}" = "true" ]; then python -m playwright install-deps chromium; else python -m playwright install --with-deps chromium; fi
+      - name: baixar pacote
+        run: |
+          curl -sSL --fail --max-time 300 -o pacote.zip "${{ inputs.pacote_url }}"
+          mkdir site && unzip -q pacote.zip -d site
+      - name: servidor local
+        run: |
+          cd site && nohup python3 -m http.server 8765 >/dev/null 2>&1 &
+          sleep 2
+      - name: render
+        run: python render_3d_parte.py --url "http://localhost:8765/${{ inputs.html }}?render" --k ${{ matrix.k }} --n ${{ inputs.partes }} --out parte.mp4
+      - name: subir parte no R2
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          CHAVE: ${{ inputs.id }}/parte_${{ matrix.k }}
+        run: |
+          python - <<'PY'
+          import os, boto3
+          s3 = boto3.client("s3", endpoint_url=f"https://{os.environ['R2_ACCOUNT_ID']}.r2.cloudflarestorage.com",
+              aws_access_key_id=os.environ["R2_ACCESS_KEY_ID"], aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"], region_name="auto")
+          k = int(os.environ["CHAVE"].rsplit("_", 1)[1])
+          chave = os.environ["CHAVE"].rsplit("_", 1)[0] + f"_{k:02d}.mp4"
+          s3.upload_file("parte.mp4", os.environ["R2_BUCKET"], chave, ExtraArgs={"ContentType": "video/mp4", "CacheControl": "no-cache"})
+          print("subiu", chave)
+          PY
