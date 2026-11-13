@@ -3,6 +3,7 @@ import sys, time, subprocess, argparse
 from playwright.sync_api import sync_playwright
 ap = argparse.ArgumentParser()
 ap.add_argument('--url'); ap.add_argument('--k', type=int); ap.add_argument('--n', type=int)
+ap.add_argument('--w', type=int, default=1920); ap.add_argument('--h', type=int, default=1080)
 ap.add_argument('--out', default='parte.mp4'); ap.add_argument('--fps', type=int, default=30)
 a = ap.parse_args()
 T0 = time.time()
@@ -10,7 +11,7 @@ def log(*x): print(f'{time.time()-T0:6.1f}s', *x, flush=True)
 ARGS = ['--use-angle=swiftshader', '--use-gl=angle', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--enable-webgl', '--allow-file-access-from-files']
 with sync_playwright() as p:
     br = p.chromium.launch(args=ARGS)
-    pg = br.new_page(viewport={'width': 1920, 'height': 1080})
+    pg = br.new_page(viewport={'width': a.w, 'height': a.h})
     erros = []
     pg.on('pageerror', lambda e: erros.append(str(e)))
     pg.on('console', lambda m: print('console:', m.text[:200]) if m.type == 'error' else None)
