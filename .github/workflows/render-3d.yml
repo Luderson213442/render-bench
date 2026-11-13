@@ -58,6 +58,8 @@ jobs:
       - name: instalar Chromium
         run: |
           if [ "${{ steps.pw.outputs.cache-hit }}" = "true" ]; then python -m playwright install-deps chromium; else python -m playwright install --with-deps chromium; fi
+      - name: ffmpeg
+        run: command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
       - name: baixar pacote
         run: |
           curl -sSL --fail --max-time 300 -o pacote.zip "${{ inputs.pacote_url }}"
