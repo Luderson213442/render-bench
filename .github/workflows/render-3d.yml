@@ -19,6 +19,12 @@ on:
       id:
         description: "id do render (pasta no R2)"
         required: true
+      largura:
+        description: "largura do quadro"
+        default: "1920"
+      altura:
+        description: "altura do quadro"
+        default: "1080"
 
 permissions:
   contents: read
@@ -69,7 +75,7 @@ jobs:
           cd site && nohup python3 -m http.server 8765 >/dev/null 2>&1 &
           sleep 2
       - name: render
-        run: python render_3d_parte.py --url "http://localhost:8765/${{ inputs.html }}?render" --k ${{ matrix.k }} --n ${{ inputs.partes }} --out parte.mp4
+        run: python render_3d_parte.py --url "http://localhost:8765/${{ inputs.html }}?render" --k ${{ matrix.k }} --n ${{ inputs.partes }} --w ${{ inputs.largura }} --h ${{ inputs.altura }} --out parte.mp4
       - name: subir parte no R2
         env:
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
