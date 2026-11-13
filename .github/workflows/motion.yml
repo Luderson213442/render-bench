@@ -47,11 +47,6 @@ jobs:
           export CHROME=$(command -v google-chrome) FFMPEG=$(python -c "import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())")
           node motion/fatia.mjs "$(cat /tmp/job/html.txt)" ${{ matrix.r[0] }} ${{ matrix.r[1] }} /tmp/out.mp4 /tmp/out.json ${{ matrix.r[2] || 4 }} 0 > /tmp/log.txt 2>&1 || { grep -iE "erro|error" /tmp/log.txt | sed 's#/tmp/job[^ ]*#…#g' | head -5; exit 1; }
           tail -1 /tmp/log.txt
-      - name: Portão da fatia
-        run: |
-          export CHROME=$(command -v google-chrome)
-          python -X utf8 -u motion/checa_objetos.py "$(cat /tmp/job/html.txt)" --faixa $((${{ matrix.r[0] }}-60)) $((${{ matrix.r[1] }}+60)) --dono ${{ matrix.r[0] }} ${{ matrix.r[1] }} > /tmp/portao.txt 2>&1 || true
-          tail -1 /tmp/portao.txt
       - name: Saída
         run: python motion/r2.py enviar ${{ matrix.r[0] }}
       - name: Limpar
