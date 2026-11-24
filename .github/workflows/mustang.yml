@@ -1,0 +1,53 @@
+name: mustang
+# Mustang: renderiza o player HTML do kit (Chromium quadro a quadro) 1 job por vídeo, em paralelo.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: m
+        run: echo "matrix=$(python3 -c "import json;print(json.dumps(json.load(open('manifest_mustang.json'))))")" >> "$GITHUB_OUTPUT"
+  render:
+    needs: prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      max-parallel: 20
+      fail-fast: false
+      matrix:
+        item: ${{ fromJSON(needs.prep.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg unzip
+      - run: pip install -q playwright boto3 && python -m playwright install --with-deps chromium
+      - name: baixar o vídeo (zip)
+        run: |
+          curl -sSL --max-time 300 -o v.zip "${{ matrix.item.zip }}"
+          mkdir -p "w/${{ matrix.item.name }}" && unzip -q v.zip -d "w/${{ matrix.item.name }}"
+      - name: render
+        run: python render_mustang.py "w/${{ matrix.item.name }}" medium
+      - name: subir no R2
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          NAME: ${{ matrix.item.name }}
+        run: |
+          python - <<'PY'
+          import os, boto3
+          s3 = boto3.client("s3", endpoint_url=f"https://{os.environ['R2_ACCOUNT_ID']}.r2.cloudflarestorage.com",
+              aws_access_key_id=os.environ["R2_ACCESS_KEY_ID"], aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"], region_name="auto")
+          n = os.environ["NAME"]
+          s3.upload_file(f"w/{n}/render/{n}.mp4", os.environ["R2_BUCKET"], f"mustang_render/out/{n}.mp4", ExtraArgs={"ContentType": "video/mp4", "CacheControl": "no-cache"})
+          print("subiu", n)
+          PY
