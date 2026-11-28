@@ -1,0 +1,42 @@
+name: reels-suculenta
+
+# Renderiza os reels HTML da suculenta (1 job por video, em paralelo) e devolve o MP4 como artifact.
+
+on:
+  workflow_dispatch:
+    inputs:
+      zip_url:
+        description: "URL do pacote .zip (pack/reels_seguir/estoque/<video> + pack/oferta)"
+        required: true
+      nomes:
+        description: 'JSON com a lista de pastas, ex.: ["d3-v1-terrario-mata"]'
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      max-parallel: 10
+      fail-fast: false
+      matrix:
+        nome: ${{ fromJSON(inputs.nomes) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - run: pip install -q playwright
+      - name: baixar pacote
+        run: curl -sSL --max-time 300 -o pack.zip "${{ inputs.zip_url }}" && unzip -q pack.zip
+      - name: render
+        run: python render_suculenta.py "pack/reels_seguir/estoque/${{ matrix.nome }}" "${{ matrix.nome }}_leve.mp4" 4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.nome }}
+          path: ${{ matrix.nome }}_leve.mp4
+          retention-days: 3
